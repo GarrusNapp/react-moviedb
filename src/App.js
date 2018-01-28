@@ -11,7 +11,62 @@ class SearchForm extends Component {
     )
   }
 }
+
+class Details extends Component {
+  //  category, imbd link, opis, country of origin, production
+  render() {
+    let d = this.props.data
+    let result
+    if (d) { result = (
+      <div>
+        <ul>
+        <li>
+          <ul>{d.genres.map((d) => <li key={d.id}>{d.name}</li>)}</ul>
+        </li>
+        <li>{d.imdb_id}</li>
+        <li>
+          <ul>{d.production_companies.map((d) => <li key={d.id}>{d.name}</li>)}</ul>
+        </li>
+        <li>
+          <ul>{d.production_countries.map((d) => <li key={d.id}>{d.name}</li>)}</ul>
+        </li>
+        </ul>
+        <span>{d.overview}</span>
+      </div>
+    )
+  }
+    return this.props.data ? result : <Wait />
+  }
+}
+
 class TableRow extends Component {
+  constructor() {
+    super()
+    this.state = {
+      details: null,
+      display: false
+    }
+    this.toggleDetails = this.toggleDetails.bind(this)
+    this.getDetails = this.getDetails.bind(this)
+  }
+
+  toggleDetails(e) {
+    this.setState({display: !this.state.display})
+    if (this.state.details === null) {
+      this.getDetails(e.target.attributes.data.value)
+    }
+  }
+
+  getDetails(id) {
+    let url = 'https://api.themoviedb.org/3/movie/'+ id +'?api_key=9105463e0cea93a221ef547caa1ba212'
+    fetch(url, {
+    	method: 'GET'})
+    .then(
+      (response) => {return response.json()} )
+    .then(
+      (data) => {this.setState({details: data})} )
+    }
+
   render() {
     let d = this.props.data
     return (
@@ -19,10 +74,9 @@ class TableRow extends Component {
         <td>{d.poster_path}</td><td>{d.title}</td>
         <td>{d.release_date}</td><td>{d.popularity}</td>
         <td>{d.vote_count}</td><td>{d.vote_average}</td>
-        <td>+</td>
+        <td><span data={d.id} onClick={this.toggleDetails}>+</span> {this.state.display ? <Details data={this.state.details} /> : null}</td>
       </tr>
     )
-
   }
 }
 class Results extends Component {
@@ -89,7 +143,6 @@ class Results extends Component {
       })
     }
 
-    console.log(data[0])
     let rows = data.map((d, i) => <TableRow data={d} key={i}/>)
     return (
       <table>
@@ -98,6 +151,7 @@ class Results extends Component {
           <th>Poster</th><th onClick={this.handleClickSort}>{sortSymbol[this.state.sorting]}</th>
           <th>Release date</th><th>Popularity</th>
           <th>Vote count</th><th>Vote avg.</th>
+          <th>Details</th>
         </tr>
         {rows}
         </tbody>
