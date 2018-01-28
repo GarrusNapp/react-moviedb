@@ -1,8 +1,47 @@
+.App {
+  text-align: center;
+  background-color: lightgrey;
+  border-radius: 10px;
+  padding: 10px;
+  min-height: 95vh;
+}
 
+ul {
+  list-style-type: none;
+  text-align: left;
+}
+
+
+input[type=text] {
+  border: 2px solid white;
+  border-radius: 2px;
+}
+
+input[type=text]:focus {
+  background-color: #ccffcc;
+  border-color: #4CAF50;
+}
+
+input[type=submit] {
+  background-color: white;
+  margin: 2px;
+  padding: 1px;
+  border: 2px solid white;
+  border-radius: 2px;
+}
+
+input[type=submit]:hover {
+  background-color: #ccffcc;
+  border-color: #4CAF50;
+}
+
+input[type=submit]:active {
+  background-color: #4CAF50;
+}
 
 .loader {
   margin: 15px auto 15px;
-  border: 10px solid #f3f3f3;
+  border: 10px solid #4CAF50;
   border-top: 10px solid rgba(255,255,255,0);
   border-radius: 50%;
   width: 51px;
@@ -13,4 +52,25 @@
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
+}
+
+/* table styling from w3schools w/ changes*/
+table {
+    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+    border-collapse: collapse;
+    width: 100%;
+}
+
+table td, table th {
+    border: 1px solid #ddd;
+    padding: 8px;
+}
+
+table tr:nth-child(even){background-color: #f2f2f2;}
+
+table th {
+    padding-top: 12px;
+    padding-bottom: 12px;
+    background-color: #4CAF50;
+    color: white;
 }

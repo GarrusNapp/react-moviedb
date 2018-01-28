@@ -6,32 +6,39 @@ class SearchForm extends Component {
     return (
       <form onSubmit={this.props.newQuery}>
         <input type="text" value={this.props.value} onChange={this.props.handleWriting} />
-        <input type="submit" value="Submit" />
+        <input type="submit" value="Search" />
       </form>
     )
   }
 }
 
 class Details extends Component {
-  //  category, imbd link, opis, country of origin, production
   render() {
     let d = this.props.data
     let result
     if (d) { result = (
       <div>
         <ul>
-        <li>
-          <ul>{d.genres.map((d) => <li key={d.id}>{d.name}</li>)}</ul>
-        </li>
-        <li>{d.imdb_id}</li>
-        <li>
-          <ul>{d.production_companies.map((d) => <li key={d.id}>{d.name}</li>)}</ul>
-        </li>
-        <li>
-          <ul>{d.production_countries.map((d) => <li key={d.id}>{d.name}</li>)}</ul>
-        </li>
+          <li>
+            <h3>Genres:</h3>
+            <ul>{d.genres.map((d) => <li key={d.id}>{d.name}</li>)}</ul>
+          </li>
+          <li>
+            <h3>
+              <a href={"http://www.imdb.com/title/" + d.imdb_id}>Check this movie on imbd!</a>
+            </h3>
+          </li>
+          <li>
+            <h3>Production companies:</h3>
+            <ul>{d.production_companies.map((d) => <li key={d.id}>{d.name}</li>)}</ul>
+          </li>
+          <li>
+            <h3>Production countries:</h3>
+            <ul>{d.production_countries.map((d) => <li key={d.id}>{d.name}</li>)}</ul>
+          </li>
         </ul>
-        <span>{d.overview}</span>
+        <h3>Overview:</h3>
+        <p>{d.overview}</p>
       </div>
     )
   }
@@ -69,16 +76,18 @@ class TableRow extends Component {
 
   render() {
     let d = this.props.data
+    let text = this.state.display ? "Hide" : "Show more"
     return (
       <tr>
-        <td>{d.poster_path}</td><td>{d.title}</td>
+        <td><img src={"https://image.tmdb.org/t/p/w154" + d.poster_path} /></td><td>{d.title}</td>
         <td>{d.release_date}</td><td>{d.popularity}</td>
         <td>{d.vote_count}</td><td>{d.vote_average}</td>
-        <td><span data={d.id} onClick={this.toggleDetails}>+</span> {this.state.display ? <Details data={this.state.details} /> : null}</td>
+        <td><button data={d.id} onClick={this.toggleDetails}>{text}</button> {this.state.display ? <Details data={this.state.details} /> : null}</td>
       </tr>
     )
   }
 }
+
 class Results extends Component {
   constructor() {
     super()
@@ -207,7 +216,7 @@ class App extends Component {
   render() {
     let display
     if (this.state.result === 'default') {
-      display = <p>Welcome to starting page, you can do many things here! Please enjoy this enormous opportunity to grow professionally as well as spiritually</p>
+      display = <p>On this page you can browse through MovieDB, using movie names. Sort by titles by pressing triangle in category names. Click "Show more" button to see details.</p>
     }
     else {
       display = this.state.result ? <Results content={this.state.result} /> : <Wait />
@@ -217,7 +226,7 @@ class App extends Component {
         <SearchForm value={this.state.formInput} newQuery={this.newQuery} handleWriting={this.handleWriting} />
         {display}
       </div>
-    );
+    )
   }
 }
 
