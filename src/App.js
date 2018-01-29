@@ -34,7 +34,7 @@ class Details extends Component {
           </li>
           <li>
             <h3>Production countries:</h3>
-            <ul>{d.production_countries.map((d) => <li key={d.id}>{d.name}</li>)}</ul>
+            <ul>{d.production_countries.map((d) => <li key={d.iso_3166_1}>{d.name}</li>)}</ul>
           </li>
         </ul>
         <h3>Overview:</h3>
@@ -47,10 +47,10 @@ class Details extends Component {
 }
 
 class TableRow extends Component {
+  //
   constructor() {
     super()
     this.state = {
-      details: null,
       display: false
     }
     this.toggleDetails = this.toggleDetails.bind(this)
@@ -58,20 +58,22 @@ class TableRow extends Component {
   }
 
   toggleDetails(e) {
+    console.log('toggling!')
     this.setState({display: !this.state.display})
-    if (this.state.details === null) {
+    if (!this.props.data.hasOwnProperty('details')) {// if there's no this.props.data.details
       this.getDetails(e.target.attributes.data.value)
     }
   }
 
   getDetails(id) {
+    console.log('Im getting details')
     let url = 'https://api.themoviedb.org/3/movie/'+ id +'?api_key=9105463e0cea93a221ef547caa1ba212'
     fetch(url, {
     	method: 'GET'})
     .then(
       (response) => {return response.json()} )
     .then(
-      (data) => {this.setState({details: data})} )
+      (data) => this.props.updateDetails(this.props.index, data) ) // => // this.props.updateDetails(data, index?)
     }
 
   render() {
@@ -79,22 +81,24 @@ class TableRow extends Component {
     let text = this.state.display ? "Hide" : "Show more"
     return (
       <tr>
-        <td><img src={"https://image.tmdb.org/t/p/w154" + d.poster_path} /></td><td>{d.title}</td>
+        <td><img src={"https://image.tmdb.org/t/p/w154" + d.poster_path} alt={d.title} /></td><td>{d.title}</td>
         <td>{d.release_date}</td><td>{d.popularity}</td>
         <td>{d.vote_count}</td><td>{d.vote_average}</td>
-        <td><button data={d.id} onClick={this.toggleDetails}>{text}</button> {this.state.display ? <Details data={this.state.details} /> : null}</td>
+        <td><button data={d.id} onClick={this.toggleDetails}>{text}</button> {this.state.display ? <Details data={d.details}  /> : null}</td>
       </tr>
     )
   }
 }
 
 class Results extends Component {
-  constructor() {
-    super()
+  constructor(props) {
+    super(props)
     this.state = {
+      data: props.content.results,
       sorting: "default"
     }
     this.handleClickSort = this.handleClickSort.bind(this)
+    this.updateDetails = this.updateDetails.bind(this)
   }
 
   handleClickSort() {
@@ -110,6 +114,15 @@ class Results extends Component {
     }
   }
 
+  updateDetails(i, data) {
+    console.log('I got details. Updating State.')
+    let current = this.state.data
+    current[i]["details"] = data
+    this.setState({
+      data: current
+    })
+  }
+
   render() {
     const sortSymbol = {
       ascending: "Title ▲",
@@ -117,7 +130,8 @@ class Results extends Component {
       default: "Title ▶"
     }
 
-    let data = this.props.content.results
+
+    let data = this.state.data
 
     if (this.state.sorting === "default") {
       //default is from most popular to least popular.
@@ -152,7 +166,7 @@ class Results extends Component {
       })
     }
 
-    let rows = data.map((d, i) => <TableRow data={d} key={i}/>)
+    let rows = data.map((d, i) => <TableRow data={d} key={i} index={i} updateDetails={this.updateDetails} />) //+ updateDetails={this.updateDetails}
     return (
       <table>
         <tbody>
@@ -188,6 +202,7 @@ class App extends Component {
     this.newQuery = this.newQuery.bind(this)
     this.handleWriting = this.handleWriting.bind(this)
   }
+
   clearState() {
     this.setState({
       result: "",
