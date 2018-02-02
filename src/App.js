@@ -13,6 +13,13 @@ class SearchForm extends Component {
 }
 
 class Details extends Component {
+  componentDidUpdate() {
+    //hiding details if props are gone due to sorting
+    if (!this.props.data) {
+      this.props.hide()
+    }
+  }
+
   render() {
     let d = this.props.data
     let result
@@ -55,18 +62,21 @@ class TableRow extends Component {
     }
     this.toggleDetails = this.toggleDetails.bind(this)
     this.getDetails = this.getDetails.bind(this)
+    this.hideDetails = this.hideDetails.bind(this)
   }
 
   toggleDetails(e) {
-    console.log('toggling!')
     this.setState({display: !this.state.display})
     if (!this.props.data.hasOwnProperty('details')) {// if there's no this.props.data.details
       this.getDetails(e.target.attributes.data.value)
     }
   }
 
+  hideDetails() {
+    this.setState({display: false})
+  }
+
   getDetails(id) {
-    console.log('Im getting details')
     let url = 'https://api.themoviedb.org/3/movie/'+ id +'?api_key=9105463e0cea93a221ef547caa1ba212'
     fetch(url, {
     	method: 'GET'})
@@ -84,7 +94,7 @@ class TableRow extends Component {
         <td><img src={"https://image.tmdb.org/t/p/w154" + d.poster_path} alt={d.title} /></td><td>{d.title}</td>
         <td>{d.release_date}</td><td>{d.popularity}</td>
         <td>{d.vote_count}</td><td>{d.vote_average}</td>
-        <td><button data={d.id} onClick={this.toggleDetails}>{text}</button> {this.state.display ? <Details data={d.details}  /> : null}</td>
+        <td><button data={d.id} onClick={this.toggleDetails}>{text}</button> {this.state.display ? <Details data={d.details} hide={this.hideDetails} /> : null}</td>
       </tr>
     )
   }
@@ -115,7 +125,6 @@ class Results extends Component {
   }
 
   updateDetails(i, data) {
-    console.log('I got details. Updating State.')
     let current = this.state.data
     current[i]["details"] = data
     this.setState({
@@ -226,7 +235,6 @@ class App extends Component {
     .then(
       (data) => {this.setState({result: data})} )
   }
-
 
   render() {
     let display
